@@ -9,54 +9,48 @@
     import { CONTACT_SERVICE_OPTIONS, type ContactServiceOption } from '$lib/config/contact';
     import { enhance } from '$app/forms';
 
-    let { data }: PageProps = $props();
+    let { data, form: actionData }: PageProps = $props();
 
-    const serviceOptions: ContactServiceOption[] = data.serviceOptions ?? CONTACT_SERVICE_OPTIONS;
+    const serviceOptions = [...(data.serviceOptions ?? CONTACT_SERVICE_OPTIONS)] as ContactServiceOption[];
 
     let form = $state({
-        name: data.form?.values?.name ?? '',
-        email: data.form?.values?.email ?? '',
-        phone: data.form?.values?.phone ?? '',
-        weddingDate: data.form?.values?.weddingDate ?? '',
-        destination: data.form?.values?.destination ?? '',
-        guestCount: data.form?.values?.guestCount ?? '',
-        services: data.form?.values?.services ?? ([] as string[]),
-        message: data.form?.values?.message ?? '',
-        subscribe: data.form?.values?.subscribe ?? false
+        name: (actionData && 'values' in actionData ? actionData.values?.name : '') ?? '',
+        email: (actionData && 'values' in actionData ? actionData.values?.email : '') ?? '',
+        phone: (actionData && 'values' in actionData ? actionData.values?.phone : '') ?? '',
+        weddingDate: (actionData && 'values' in actionData ? actionData.values?.weddingDate : '') ?? '',
+        destination: (actionData && 'values' in actionData ? actionData.values?.destination : '') ?? '',
+        guestCount: (actionData && 'values' in actionData ? actionData.values?.guestCount : '') ?? '',
+        services: (actionData && 'values' in actionData ? actionData.values?.services : []) ?? ([] as string[]),
+        message: (actionData && 'values' in actionData ? actionData.values?.message : '') ?? '',
+        subscribe: (actionData && 'values' in actionData ? actionData.values?.subscribe : false) ?? false
     });
 
-    const errors = $derived(data.form?.errors ?? {});
-    const success = $derived(data.form?.success ?? false);
+    const errors = $derived((actionData && 'errors' in actionData ? actionData.errors : {}) ?? {});
+    const success = $derived((actionData && 'success' in actionData ? actionData.success : false) ?? false);
 
-    const enhanceForm = typeof window !== 'undefined'
-        ? enhance(async ({ result, update }) => {
-              try {
-                  if (result.type === 'success') {
-                      const data = result?.json ? await result.json() : undefined;
+    const handleEnhance: import('@sveltejs/kit').SubmitFunction = () => {
+        return async ({ result, update }) => {
+            if (result.type === 'success') {
+                // Clear the form on success
+                form = {
+                    name: '',
+                    email: '',
+                    phone: '',
+                    weddingDate: '',
+                    destination: '',
+                    guestCount: '',
+                    services: [],
+                    message: '',
+                    subscribe: false
+                };
+            }
+            
+            // Call default update behavior
+            await update();
+        };
+    };
 
-                      if (data?.success) {
-                          form = {
-                              name: '',
-                              email: '',
-                              phone: '',
-                              weddingDate: '',
-                              destination: '',
-                              guestCount: '',
-                              services: [],
-                              message: '',
-                              subscribe: false
-                          };
-
-                          update({ form: { success: true, errors: {}, values: {} } });
-                      }
-                  } else if (result.type === 'failure') {
-                      update({ form: result.data });
-                  }
-              } catch (error) {
-                  console.error('Failed handling enhanced form response', error);
-              }
-          })
-        : undefined;
+    type ErrorRecord = Record<string, string> & { _form?: string };
 </script>
 
 <svelte:head>
@@ -80,7 +74,7 @@
             </header>
 
             <Card class="border-0 shadow-lg">
-                <form class="flex flex-col gap-8" method="post" use:enhanceForm>
+                <form class="flex flex-col gap-8" method="post" use:enhance={handleEnhance}>
                     <CardContent class="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <div class="flex flex-col gap-2">
                             <label class="text-sm font-medium text-muted-foreground" for="name">Navn *</label>
@@ -91,8 +85,8 @@
                                 placeholder="Ditt fulle navn"
                                 required
                             />
-                            {#if errors.name}
-                                <span class="text-sm text-destructive">{errors.name}</span>
+                            {#if (errors as ErrorRecord).name}
+                                <span class="text-sm text-destructive">{(errors as ErrorRecord).name}</span>
                             {/if}
                         </div>
 
@@ -106,8 +100,8 @@
                                 type="email"
                                 required
                             />
-                            {#if errors.email}
-                                <span class="text-sm text-destructive">{errors.email}</span>
+                            {#if (errors as ErrorRecord).email}
+                                <span class="text-sm text-destructive">{(errors as ErrorRecord).email}</span>
                             {/if}
                         </div>
 
@@ -160,8 +154,8 @@
                                 type="number"
                                 min="0"
                             />
-                            {#if errors.guestCount}
-                                <span class="text-sm text-destructive">{errors.guestCount}</span>
+                            {#if (errors as ErrorRecord).guestCount}
+                                <span class="text-sm text-destructive">{(errors as ErrorRecord).guestCount}</span>
                             {/if}
                         </div>
                     </CardContent>
@@ -179,11 +173,11 @@
                                             class="size-4 rounded border-muted-foreground/50 text-primary focus-visible:ring-primary"
                                             value={option}
                                             checked={form.services.includes(option)}
-                                            on:change={(event) => {
+                                            onchange={(event) => {
                                                 const { checked } = event.currentTarget as HTMLInputElement;
                                                 form.services = checked
                                                     ? [...form.services, option]
-                                                    : form.services.filter((service) => service !== option);
+                                                    : form.services.filter((service: string) => service !== option);
                                             }}
                                             name="services"
                                         />
@@ -203,7 +197,7 @@
                                 bind:value={form.message}
                                 placeholder="Beskriv deres drømmer, ønsker og eventuelle spesielle behov..."
                                 rows="6"
-                                class="ring-offset-background focus-visible:ring-ring dark:bg-input/30 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive aria-invalid:ring-destructive/20 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] border-input bg-background placeholder:text-muted-foreground shadow-xs w-full rounded-md border px-3 py-2 text-base outline-none transition-[color,box-shadow] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                                class="ring-offset-background dark:bg-input/30 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive aria-invalid:ring-destructive/20 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] border-input bg-background placeholder:text-muted-foreground shadow-xs w-full rounded-md border px-3 py-2 text-base outline-none transition-[color,box-shadow] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                             ></textarea>
                         </div>
 
@@ -216,6 +210,12 @@
                             />
                             <span>Motta nyheter og inspirasjon på e-post</span>
                         </label>
+
+                        {#if (errors as ErrorRecord)._form}
+                            <div class="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                                {(errors as ErrorRecord)._form}
+                            </div>
+                        {/if}
 
                         {#if success}
                             <div class="rounded-md bg-primary/10 px-4 py-3 text-sm text-primary">

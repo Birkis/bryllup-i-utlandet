@@ -2,10 +2,8 @@ import type { Actions, PageServerLoad } from './$types';
 import { CONTACT_SERVICE_OPTIONS } from '$lib/config/contact';
 import { sendContactEmail } from '$lib/server/email';
 import type { ContactRequest, ContactRequestInput } from '$lib/types/contact-request';
-import { fail, json } from '@sveltejs/kit';
-
-const CONTACT_COLLECTION = new Map<string, ContactRequest>();
-const CONTACT_EVENTS: string[] = [];
+import { fail } from '@sveltejs/kit';
+import { supabase } from '$lib/server/supabase';
 
 const parseServices = (value: FormDataEntryValue | FormDataEntryValue[] | null): string[] => {
   if (!value) return [];
@@ -98,34 +96,66 @@ export const actions = {
       });
     }
 
-    const now = new Date().toISOString();
-    const id = crypto.randomUUID();
-    const contactRequest: ContactRequest = {
-      id,
-      createdAt: now,
-      name: input.name,
-      email: input.email,
-      phone: input.phone,
-      weddingDate: input.weddingDate,
-      destination: input.destination,
-      guestCount: input.guestCount,
-      services: input.services ?? [],
-      message: input.message,
-      subscribe: input.subscribe ?? false,
-      stage: 'new',
-      source: 'website-kontakt',
-      tags: [url.searchParams.get('utm_source') ?? 'website'],
-      metadata: {
-        ipAddress: request.headers.get('x-forwarded-for') ?? undefined,
-        userAgent: request.headers.get('user-agent') ?? undefined,
-        referrer: request.headers.get('referer') ?? undefined,
-        utmSource: url.searchParams.get('utm_source') ?? undefined,
-        utmMedium: url.searchParams.get('utm_medium') ?? undefined,
-        utmCampaign: url.searchParams.get('utm_campaign') ?? undefined,
-      },
+    // Build metadata for tracking and automation
+    const metadata = {
+      ipAddress: request.headers.get('x-forwarded-for') ?? undefined,
+      userAgent: request.headers.get('user-agent') ?? undefined,
+      referrer: request.headers.get('referer') ?? undefined,
+      utmSource: url.searchParams.get('utm_source') ?? undefined,
+      utmMedium: url.searchParams.get('utm_medium') ?? undefined,
+      utmCampaign: url.searchParams.get('utm_campaign') ?? undefined,
     };
 
-    const emailText = `Ny kontaktforespørsel:\n\nNavn: ${contactRequest.name}\nE-post: ${contactRequest.email}\nTelefon: ${contactRequest.phone ?? 'Ikke oppgitt'}\nDestinasjon: ${contactRequest.destination ?? 'Ikke oppgitt'}\nTjenester: ${contactRequest.services.join(', ') || 'Ingen valgt'}\nMelding:\n${contactRequest.message ?? ''}`;
+    // Insert contact request into Supabase
+    const { data: contactRequest, error: insertError } = await supabase
+      .from('contact_requests')
+      .insert({
+        name: input.name,
+        email: input.email,
+        phone: input.phone,
+        wedding_date: input.weddingDate,
+        destination: input.destination,
+        guest_count: input.guestCount,
+        services: input.services ?? [],
+        message: input.message,
+        subscribe: input.subscribe ?? false,
+        stage: 'new',
+        source: 'website-kontakt',
+        tags: [url.searchParams.get('utm_source') ?? 'website'],
+        metadata,
+      })
+      .select()
+      .single();
+
+    if (insertError || !contactRequest) {
+      console.error('Failed to insert contact request:', insertError);
+      return fail(500, {
+        success: false,
+        errors: { _form: 'Det oppstod en feil ved lagring av forespørselen. Vennligst prøv igjen.' },
+        values: input,
+      });
+    }
+
+    // Create an event for automation tracking
+    const { error: eventError } = await supabase
+      .from('contact_request_events')
+      .insert({
+        contact_request_id: contactRequest.id,
+        event_type: 'contact.request.created',
+        payload: {
+          name: contactRequest.name,
+          email: contactRequest.email,
+          services: contactRequest.services,
+          source: contactRequest.source,
+        },
+      });
+
+    if (eventError) {
+      console.error('Failed to create event:', eventError);
+    }
+
+    // Send notification email
+    const emailText = `Ny kontaktforespørsel:\n\nNavn: ${contactRequest.name}\nE-post: ${contactRequest.email}\nTelefon: ${contactRequest.phone ?? 'Ikke oppgitt'}\nDestinasjon: ${contactRequest.destination ?? 'Ikke oppgitt'}\nTjenester: ${contactRequest.services?.join(', ') || 'Ingen valgt'}\nMelding:\n${contactRequest.message ?? ''}`;
 
     await sendContactEmail({
       subject: 'Ny kontaktforespørsel fra nettsiden',
@@ -135,6 +165,6 @@ export const actions = {
       text: emailText,
     });
 
-    return json({ success: true });
+    return { success: true };
   },
 } satisfies Actions;
