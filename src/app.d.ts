@@ -6,7 +6,9 @@ declare global {
 	namespace App {
 		// interface Error {}
 		// interface Locals {}
-		// interface PageData {}
+		interface PageData {
+			form?: import('@sveltejs/kit').ActionData;
+		}
 		// interface PageState {}
 		// interface Platform {}
 	}

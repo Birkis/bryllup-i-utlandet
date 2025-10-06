@@ -1,14 +1,8 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
-  import {
-    Card,
-    CardHeader,
-    CardContent,
-    CardFooter,
-    CardTitle,
-    CardDescription,
-  } from "$lib/components/ui/card";
+  import { ClipboardList, Globe2, Heart } from "@lucide/svelte";
   import heroImage from "$lib/assets/bryllupsbilder_3.png?imagetools&width=1600;1200;800&format=webp;png&as=picture";
+  import DestinationCard from "$lib/components/destinations/DestinationCard.svelte";
 
   export let data;
 </script>
@@ -60,55 +54,7 @@
           <p class="text-center text-slate-500">Ingen destinasjoner funnet akkurat nå. Kom tilbake senere!</p>
         {:else}
           {#each data.destinations as destination}
-            <Card class="overflow-hidden rounded-2xl border-slate-200">
-            {#if destination.imageUrl}
-              <img src={destination.imageUrl} alt={destination.imageAlt ?? destination.name} class="h-60 object-top w-full object-cover -translate-y-6" />
-            {:else}
-              <div class="flex h-60 w-full items-center justify-center bg-slate-100 text-slate-500">
-                <span>Mangler bilde</span>
-              </div>
-            {/if}
-            <CardHeader class="gap-2 border-b border-slate-100 pb-5">
-              <CardTitle class="text-xl">
-                {#if destination.slug}
-                  <a
-                    href={`/destinations/${destination.slug}`}
-                    class="text-slate-900 underline-offset-4 transition hover:text-[#0f1f16] hover:underline"
-                  >
-                    {destination.name}
-                  </a>
-                {:else}
-                  {destination.name}
-                {/if}
-              </CardTitle>
-              <CardDescription class="text-slate-600">{destination.shortDescription}</CardDescription>
-            </CardHeader>
-            <CardContent class="space-y-4 pt-6">
-              <div class="space-y-2">
-                <h3 class="font-semibold text-slate-900">Høydepunkter:</h3>
-                {#if destination.highlights?.length}
-                  <div class="flex flex-wrap gap-2">
-                    {#each destination.highlights as highlight}
-                      <span class="rounded-full bg-slate-100 px-4 py-1 text-sm font-medium text-slate-700">
-                        {highlight.title}
-                      </span>
-                    {/each}
-                  </div>
-                {:else}
-                  <p class="text-sm text-slate-500">Høydepunkter kommer snart.</p>
-                {/if}
-              </div>
-            </CardContent>
-            <CardFooter class="border-t border-slate-100 pt-6">
-              <Button
-                variant="outline"
-                class="w-full rounded-full border-slate-300 px-6 py-5 text-base font-semibold text-slate-900"
-                asChild
-              >
-                <a href="/kontakt">Få tilbud for {destination.name}</a>
-              </Button>
-            </CardFooter>
-            </Card>
+            <DestinationCard destination={destination} />
           {/each}
         {/if}
       </div>
@@ -125,7 +71,7 @@
         <div class="grid gap-10 md:grid-cols-3">
           <div class="space-y-3">
             <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#0f1f16]/10 text-[#0f1f16]">
-              <span class="text-xl">🌍</span>
+              <Globe2 class="h-6 w-6" aria-hidden="true" />
             </div>
             <h3 class="text-lg font-semibold text-slate-900">Lokal ekspertise</h3>
             <p class="text-sm text-slate-600">
@@ -134,7 +80,7 @@
           </div>
           <div class="space-y-3">
             <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#0f1f16]/10 text-[#0f1f16]">
-              <span class="text-xl">📋</span>
+              <ClipboardList class="h-6 w-6" aria-hidden="true" />
             </div>
             <h3 class="text-lg font-semibold text-slate-900">Alt fra A til Å</h3>
             <p class="text-sm text-slate-600">
@@ -143,7 +89,7 @@
           </div>
           <div class="space-y-3">
             <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#0f1f16]/10 text-[#0f1f16]">
-              <span class="text-xl">❤️</span>
+              <Heart class="h-6 w-6" aria-hidden="true" />
             </div>
             <h3 class="text-lg font-semibold text-slate-900">Personlig service</h3>
             <p class="text-sm text-slate-600">
