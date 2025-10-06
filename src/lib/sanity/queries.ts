@@ -70,3 +70,47 @@ export const destinationBySlugQuery = `
   }
 `;
 
+export const blogPostsQuery = `
+  *[_type == "blogPost" && isPublished == true] | order(publishedAt desc) {
+    "id": _id,
+    title,
+    "slug": slug.current,
+    author,
+    publishedAt,
+    excerpt,
+    tags,
+    isPublished,
+    "featuredImage": {
+      "url": featuredImage.asset->url,
+      "alt": featuredImage.alt
+    }
+  }
+`;
+
+export const blogPostBySlugQuery = `
+  *[_type == "blogPost" && slug.current == $slug][0] {
+    "id": _id,
+    title,
+    "slug": slug.current,
+    author,
+    publishedAt,
+    excerpt,
+    tags,
+    isPublished,
+    "featuredImage": {
+      "url": featuredImage.asset->url,
+      "alt": featuredImage.alt
+    },
+    content[] {
+      ...,
+      ...select(
+        _type == "image" => {
+          "url": asset->url,
+          alt,
+          caption
+        }
+      )
+    }
+  }
+`;
+

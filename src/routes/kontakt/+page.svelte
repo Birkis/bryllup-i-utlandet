@@ -6,37 +6,57 @@
     import Input from '$lib/components/ui/input/input.svelte';
     import Button from '$lib/components/ui/button/button.svelte';
     import { Clock, Mail, MapPin, Phone } from '@lucide/svelte';
+    import { CONTACT_SERVICE_OPTIONS, type ContactServiceOption } from '$lib/config/contact';
+    import { enhance } from '$app/forms';
 
     let { data }: PageProps = $props();
 
-    const serviceOptions = [
-        'Komplett bryllupsplanlegging',
-        'Bryllup i utlandet',
-        'Catering',
-        'Fotografering',
-        'Transport',
-        'Toastmaster',
-        'Lokaler og venues',
-        'Dekorasjon',
-        'Musikk og underholdning',
-        'Annet'
-    ];
+    const serviceOptions: ContactServiceOption[] = data.serviceOptions ?? CONTACT_SERVICE_OPTIONS;
 
-    let form = {
-        name: '',
-        email: '',
-        phone: '',
-        weddingDate: '',
-        destination: '',
-        guestCount: '',
-        services: [] as string[],
-        message: '',
-        subscribe: false
-    };
+    let form = $state({
+        name: data.form?.values?.name ?? '',
+        email: data.form?.values?.email ?? '',
+        phone: data.form?.values?.phone ?? '',
+        weddingDate: data.form?.values?.weddingDate ?? '',
+        destination: data.form?.values?.destination ?? '',
+        guestCount: data.form?.values?.guestCount ?? '',
+        services: data.form?.values?.services ?? ([] as string[]),
+        message: data.form?.values?.message ?? '',
+        subscribe: data.form?.values?.subscribe ?? false
+    });
 
-    const handleSubmit = (event: SubmitEvent) => {
-        event.preventDefault();
-    };
+    const errors = $derived(data.form?.errors ?? {});
+    const success = $derived(data.form?.success ?? false);
+
+    const enhanceForm = typeof window !== 'undefined'
+        ? enhance(async ({ result, update }) => {
+              try {
+                  if (result.type === 'success') {
+                      const data = result?.json ? await result.json() : undefined;
+
+                      if (data?.success) {
+                          form = {
+                              name: '',
+                              email: '',
+                              phone: '',
+                              weddingDate: '',
+                              destination: '',
+                              guestCount: '',
+                              services: [],
+                              message: '',
+                              subscribe: false
+                          };
+
+                          update({ form: { success: true, errors: {}, values: {} } });
+                      }
+                  } else if (result.type === 'failure') {
+                      update({ form: result.data });
+                  }
+              } catch (error) {
+                  console.error('Failed handling enhanced form response', error);
+              }
+          })
+        : undefined;
 </script>
 
 <svelte:head>
@@ -60,7 +80,7 @@
             </header>
 
             <Card class="border-0 shadow-lg">
-                <form class="flex flex-col gap-8" on:submit|preventDefault={handleSubmit}>
+                <form class="flex flex-col gap-8" method="post" use:enhanceForm>
                     <CardContent class="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <div class="flex flex-col gap-2">
                             <label class="text-sm font-medium text-muted-foreground" for="name">Navn *</label>
@@ -71,6 +91,9 @@
                                 placeholder="Ditt fulle navn"
                                 required
                             />
+                            {#if errors.name}
+                                <span class="text-sm text-destructive">{errors.name}</span>
+                            {/if}
                         </div>
 
                         <div class="flex flex-col gap-2">
@@ -83,6 +106,9 @@
                                 type="email"
                                 required
                             />
+                            {#if errors.email}
+                                <span class="text-sm text-destructive">{errors.email}</span>
+                            {/if}
                         </div>
 
                         <div class="flex flex-col gap-2">
@@ -134,6 +160,9 @@
                                 type="number"
                                 min="0"
                             />
+                            {#if errors.guestCount}
+                                <span class="text-sm text-destructive">{errors.guestCount}</span>
+                            {/if}
                         </div>
                     </CardContent>
 
@@ -156,6 +185,7 @@
                                                     ? [...form.services, option]
                                                     : form.services.filter((service) => service !== option);
                                             }}
+                                            name="services"
                                         />
                                         <span class="select-none">{option}</span>
                                     </label>
@@ -176,6 +206,22 @@
                                 class="ring-offset-background focus-visible:ring-ring dark:bg-input/30 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive aria-invalid:ring-destructive/20 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] border-input bg-background placeholder:text-muted-foreground shadow-xs w-full rounded-md border px-3 py-2 text-base outline-none transition-[color,box-shadow] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                             ></textarea>
                         </div>
+
+                        <label class="flex items-center gap-3 text-sm text-muted-foreground">
+                            <input
+                                type="checkbox"
+                                name="subscribe"
+                                class="size-4 rounded border-muted-foreground/50 text-primary focus-visible:ring-primary"
+                                bind:checked={form.subscribe}
+                            />
+                            <span>Motta nyheter og inspirasjon på e-post</span>
+                        </label>
+
+                        {#if success}
+                            <div class="rounded-md bg-primary/10 px-4 py-3 text-sm text-primary">
+                                Takk for forespørselen! Vi kontakter dere snart.
+                            </div>
+                        {/if}
                     </CardContent>
 
                     <CardFooter class="flex justify-end">
