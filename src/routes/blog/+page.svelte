@@ -27,13 +27,7 @@
 <div class="min-h-screen bg-white text-slate-900">
   <section class="relative isolate overflow-hidden bg-[#0f1f16]">
     <div class="absolute inset-0 bg-gradient-to-br from-[#0f1f16] via-[#13281e] to-[#0f1f16]"></div>
-    <div class="relative mx-auto flex max-w-4xl flex-col gap-6 px-6 py-24 text-white">
-      <a
-        href="/"
-        class="inline-flex w-max items-center gap-2 text-sm font-medium text-white/80 transition hover:text-white"
-      >
-        ← Tilbake til forsiden
-      </a>
+    <div class="relative mx-auto flex max-w-4xl flex-col gap-6 px-6 py-12 text-white">
       <div class="space-y-4">
         <span class="text-sm uppercase tracking-[0.3em] text-white/60">Blogg</span>
         <h1 class="text-4xl font-semibold tracking-tight sm:text-5xl">Historier og inspirasjon</h1>

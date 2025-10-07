@@ -5,6 +5,7 @@
     import CardFooter from '$lib/components/ui/card/card-footer.svelte';
     import Input from '$lib/components/ui/input/input.svelte';
     import Button from '$lib/components/ui/button/button.svelte';
+    import { MonthPicker } from '$lib/components/ui/month-picker';
     import { Clock, Mail, MapPin, Phone } from '@lucide/svelte';
     import { CONTACT_SERVICE_OPTIONS, type ContactServiceOption } from '$lib/config/contact';
     import { enhance } from '$app/forms';
@@ -118,15 +119,13 @@
 
                         <div class="flex flex-col gap-2">
                             <label class="text-sm font-medium text-muted-foreground" for="weddingDate"
-                                >Ønsket bryllupsdato</label
+                                >Ønsket bryllupsmåned</label
                             >
-                            <Input
-                                id="weddingDate"
-                                name="weddingDate"
+                            <MonthPicker
                                 bind:value={form.weddingDate}
-                                placeholder="dd.mm.åååå"
-                                type="text"
+                                placeholder="Velg måned og år"
                             />
+                            <input type="hidden" name="weddingDate" value={form.weddingDate} />
                         </div>
 
                         <div class="flex flex-col gap-2">
