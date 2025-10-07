@@ -21,17 +21,17 @@
   const priceMin = filterMeta?.priceRange?.min;
   const priceMax = filterMeta?.priceRange?.max;
 
-  let selectedCountry = '';
-  let selectedRegion = '';
-  let selectedVenueTypes: string[] = [];
-  let selectedSeason = '';
-  let guestMin = capacityMin;
-  let guestMax = capacityMax;
-  let maxBudget = priceMax;
-  let requireAccommodation = false;
-  let requirePlannerSupport = false;
+  let selectedCountry = $state('');
+  let selectedRegion = $state('');
+  let selectedVenueTypes = $state<string[]>([]);
+  let selectedSeason = $state('');
+  let guestMin = $state(capacityMin);
+  let guestMax = $state(capacityMax);
+  let maxBudget = $state(priceMax);
+  let requireAccommodation = $state(false);
+  let requirePlannerSupport = $state(false);
 
-  let showFilters = false;
+  let showFilters = $state(false);
 
   const toggleVenueType = (venue: string) => {
     selectedVenueTypes = selectedVenueTypes.includes(venue)
@@ -162,13 +162,7 @@
 <div class="min-h-screen bg-white text-slate-900">
   <section class="relative isolate overflow-hidden bg-[#0f1f16]">
     <div class="absolute inset-0 bg-gradient-to-br from-[#0f1f16] via-[#13281e] to-[#0f1f16]"></div>
-    <div class="relative mx-auto flex max-w-4xl flex-col gap-6 px-6 py-24 text-white">
-      <a
-        href="/"
-        class="inline-flex w-max items-center gap-2 text-sm font-medium text-white/80 transition hover:text-white"
-      >
-        ← Tilbake til forsiden
-      </a>
+    <div class="relative mx-auto flex max-w-4xl flex-col gap-6 px-6 py-12 text-white">
       <div class="space-y-4">
         <span class="text-sm uppercase tracking-[0.3em] text-white/60">Bryllupsdestinasjoner</span>
         <h1 class="text-4xl font-semibold tracking-tight sm:text-5xl">Finn den perfekte destinasjonen</h1>
@@ -183,7 +177,7 @@
           <span aria-live="polite">{matchCountLabel}</span>
         </p>
         {#if isFilterActive()}
-          <Button variant="secondary" class="rounded-full bg-white/20 px-5 py-2 text-sm text-white" on:click={resetFilters}>
+          <Button variant="secondary" class="rounded-full bg-white/20 px-5 py-2 text-sm text-white" onclick={resetFilters}>
             Tilbakestill filtre
           </Button>
         {/if}
@@ -200,7 +194,7 @@
       <Button
         variant="outline"
         class="flex items-center gap-2 rounded-full border-slate-300 px-4 py-2 text-sm"
-        on:click={() => (showFilters = !showFilters)}
+        onclick={() => (showFilters = !showFilters)}
         aria-expanded={showFilters}
         aria-controls="filters-panel"
       >
@@ -212,16 +206,15 @@
     <div class="grid gap-10 lg:grid-cols-[320px_1fr]">
       <aside
         id="filters-panel"
-        class={`space-y-6 rounded-3xl border border-slate-200 bg-slate-50/60 p-6 shadow-sm transition-all duration-200 ${
-          showFilters ? 'block' : 'hidden lg:block'
-        }`}
+        class="space-y-6 rounded-3xl border border-slate-200 bg-slate-50/60 p-6 shadow-sm transition-all duration-200 lg:block"
+        class:hidden={!showFilters}
       >
         <header class="flex items-center justify-between">
           <div class="space-y-1">
             <h2 class="text-lg font-semibold text-slate-900">Filtrer destinasjoner</h2>
             <p class="text-sm text-slate-500">Juster etter det som er viktig for dere</p>
           </div>
-          <Button variant="ghost" class="text-sm text-slate-600" on:click={resetFilters}>
+          <Button variant="ghost" class="text-sm text-slate-600" onclick={resetFilters}>
             Nullstill
           </Button>
         </header>
@@ -230,7 +223,7 @@
           <label class="flex flex-col gap-2">
             <span class="text-sm font-medium text-slate-700">Land</span>
             <select
-              class="h-10 w-full rounded-full border border-slate-200 bg-white px-4 text-sm shadow-sm focus:border-[#0f1f16] focus:outline-none"
+              class="h-10 w-full appearance-none rounded-full border border-slate-200 bg-white bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%23475569%22%20d%3D%22M6%209L1%204h10z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_1rem_center] bg-no-repeat px-4 pr-10 text-sm shadow-sm focus:border-[#0f1f16] focus:outline-none"
               bind:value={selectedCountry}
             >
               <option value="">Alle land</option>
@@ -243,7 +236,7 @@
           <label class="flex flex-col gap-2">
             <span class="text-sm font-medium text-slate-700">Region</span>
             <select
-              class="h-10 w-full rounded-full border border-slate-200 bg-white px-4 text-sm shadow-sm focus:border-[#0f1f16] focus:outline-none"
+              class="h-10 w-full appearance-none rounded-full border border-slate-200 bg-white bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%23475569%22%20d%3D%22M6%209L1%204h10z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_1rem_center] bg-no-repeat px-4 pr-10 text-sm shadow-sm focus:border-[#0f1f16] focus:outline-none"
               bind:value={selectedRegion}
             >
               <option value="">Alle regioner</option>
@@ -269,7 +262,7 @@
                       ? 'border-[#0f1f16] bg-[#0f1f16] text-white'
                       : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
                   }`}
-                  on:click={() => toggleVenueType(venue)}
+                  onclick={() => toggleVenueType(venue)}
                 >
                   {venue}
                 </button>
@@ -335,7 +328,7 @@
                     ? 'border-[#0f1f16] bg-[#0f1f16] text-white'
                     : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
                 }`}
-                on:click={() => (selectedSeason = '')}
+                onclick={() => (selectedSeason = '')}
               >
                 Alle
               </button>
@@ -347,7 +340,7 @@
                       ? 'border-[#0f1f16] bg-[#0f1f16] text-white'
                       : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
                   }`}
-                  on:click={() => (selectedSeason = season)}
+                  onclick={() => (selectedSeason = season)}
                 >
                   {season}
                 </button>
@@ -391,7 +384,7 @@
               Juster filtrene, eller <a href="/kontakt" class="underline">ta kontakt</a> så finner vi et alternativ
               som passer dere.
             </p>
-            <Button class="mt-6 rounded-full px-6 py-3" on:click={resetFilters}>Tilbakestill filtre</Button>
+            <Button class="mt-6 rounded-full px-6 py-3" onclick={resetFilters}>Tilbakestill filtre</Button>
           </div>
         {/if}
       </section>
