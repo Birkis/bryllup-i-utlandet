@@ -224,7 +224,7 @@
                     </CardContent>
 
                     <CardFooter class="flex justify-end">
-                        <Button type="submit" class="bg-primary px-10 py-6 text-lg font-semibold">
+                        <Button type="submit" class="bg-primary px-10 py-6 text-lg font-semibold active:scale-95 active:brightness-90 transition-transform">
                             Send forespørsel
                         </Button>
                     </CardFooter>

@@ -17,10 +17,10 @@ SANITY_DATASET=production
 SANITY_API_TOKEN=your-sanity-api-token
 
 # n8n Automation (optional)
-N8N_WEBHOOK_URL=https://your-n8n-instance.com/webhook/contact-request
+N8N_WEBHOOK_TEST_URL=https://your-n8n-instance.com/webhook/contact-request
 ```
 
-**Note:** The `N8N_WEBHOOK_URL` is optional. If not configured, contact form submissions will still work but won't trigger n8n automation workflows.
+**Note:** The `N8N_WEBHOOK_TEST_URL` is optional. If not configured, contact form submissions will still work but won't trigger n8n automation workflows.
 
 ## Developing
 

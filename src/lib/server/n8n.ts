@@ -31,11 +31,11 @@ type N8nContactPayload = {
  * Failures are logged but don't throw errors to ensure graceful degradation.
  */
 export const sendToN8n = (contactRequest: N8nContactPayload): void => {
-  const webhookUrl = env.N8N_WEBHOOK_URL;
+  const webhookUrl = env.N8N_WEBHOOK_TEST_URL;
 
   // Skip if webhook URL is not configured (e.g., in development)
   if (!webhookUrl) {
-    console.info('[n8n] Webhook URL not configured, skipping automation');
+    console.info('[n8n] Webhook URL (N8N_WEBHOOK_TEST_URL) not configured, skipping automation');
     return;
   }
 
