@@ -1,6 +1,7 @@
 import type { Actions, PageServerLoad } from './$types';
 import { CONTACT_SERVICE_OPTIONS } from '$lib/config/contact';
 import { sendContactEmail } from '$lib/server/email';
+import { sendToN8n } from '$lib/server/n8n';
 import type { ContactRequest, ContactRequestInput } from '$lib/types/contact-request';
 import { fail } from '@sveltejs/kit';
 import { supabase } from '$lib/server/supabase';
@@ -164,6 +165,9 @@ export const actions = {
       replyTo: contactRequest.email,
       text: emailText,
     });
+
+    // Send to n8n webhook for automation (fire-and-forget)
+    sendToN8n(contactRequest);
 
     return { success: true };
   },

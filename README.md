@@ -1,18 +1,26 @@
-# sv
+# Bryllup i Utlandet
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A wedding planning website built with SvelteKit, Sanity CMS, and Supabase.
 
-## Creating a project
+## Environment Variables
 
-If you're seeing this, you've probably already done this step. Congrats!
+Create a `.env` file in the project root with the following variables:
 
-```sh
-# create a new project in the current directory
-npx sv create
+```env
+# Supabase
+SUPABASE_URL=your-supabase-url
+SUPABASE_SECRET_KEY=your-supabase-service-role-key
 
-# create a new project in my-app
-npx sv create my-app
+# Sanity CMS
+SANITY_PROJECT_ID=your-sanity-project-id
+SANITY_DATASET=production
+SANITY_API_TOKEN=your-sanity-api-token
+
+# n8n Automation (optional)
+N8N_WEBHOOK_URL=https://your-n8n-instance.com/webhook/contact-request
 ```
+
+**Note:** The `N8N_WEBHOOK_URL` is optional. If not configured, contact form submissions will still work but won't trigger n8n automation workflows.
 
 ## Developing
 
