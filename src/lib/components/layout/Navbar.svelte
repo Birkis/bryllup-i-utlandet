@@ -10,7 +10,7 @@
     { href: "/kontakt", label: "Kontakt", icon: Mail, isCTA: true },
   ];
 
-  export let brandLabel = "Bryllupspakken";
+  export let brandLabel = "Bryllup i Utlandet";
   export let brandHref = "/";
 
   // Check if current path matches the link
