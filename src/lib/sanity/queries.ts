@@ -26,7 +26,7 @@ export const destinationsQuery = `
 `;
 
 export const destinationBySlugQuery = `
-  *[_type == "destination" && slug.current == $slug][0] {
+  *[_type == "destination" && (slug.current == $slug || slug.current == "/" + $slug)][0] {
     "id": _id,
     name,
     "slug": slug.current,

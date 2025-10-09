@@ -41,6 +41,49 @@
     item: PortableTextBlock | PortableTextImageBlock,
   ): item is PortableTextImageBlock => item._type === 'image';
 
+  // Helper function to render a span with its marks
+  const renderSpanWithMarks = (
+    span: { text: string; marks?: string[] },
+    markDefs?: Array<{ _key: string; _type: string; href?: string }>,
+  ): string => {
+    // First, convert newlines to <br> tags
+    let html = span.text.replace(/\n/g, '<br>');
+
+    if (!span.marks || span.marks.length === 0) {
+      return html;
+    }
+
+    // Apply marks in order
+    for (const mark of span.marks) {
+      // Check if it's a link reference
+      const linkDef = markDefs?.find((def) => def._key === mark);
+      if (linkDef && linkDef._type === 'link' && linkDef.href) {
+        html = `<a href="${linkDef.href}" class="text-[#0f1f16] underline hover:text-[#0f1f16]/80 transition" target="_blank" rel="noopener">${html}</a>`;
+      } else {
+        // Apply standard marks
+        switch (mark) {
+          case 'strong':
+            html = `<strong>${html}</strong>`;
+            break;
+          case 'em':
+            html = `<em>${html}</em>`;
+            break;
+          case 'underline':
+            html = `<u>${html}</u>`;
+            break;
+          case 'code':
+            html = `<code class="rounded bg-slate-100 px-1.5 py-0.5 text-sm">${html}</code>`;
+            break;
+          case 'strikethrough':
+            html = `<s>${html}</s>`;
+            break;
+        }
+      }
+    }
+
+    return html;
+  };
+
   const hasCapacity = destination.capacity?.min || destination.capacity?.max;
   const hasAverageCosts =
     destination.averageCosts?.venue != null ||
@@ -144,21 +187,33 @@
           {#each destination.fullDescription as block}
             {#if isBlock(block)}
               {#if block.style === 'h2'}
-                <h2>{block.children?.[0]?.text}</h2>
+                <h2>
+                  {#each block.children ?? [] as child}
+                    {@html renderSpanWithMarks(child, block.markDefs)}
+                  {/each}
+                </h2>
               {:else if block.style === 'h3'}
-                <h3>{block.children?.[0]?.text}</h3>
+                <h3>
+                  {#each block.children ?? [] as child}
+                    {@html renderSpanWithMarks(child, block.markDefs)}
+                  {/each}
+                </h3>
               {:else if block.style === 'h4'}
-                <h4>{block.children?.[0]?.text}</h4>
+                <h4>
+                  {#each block.children ?? [] as child}
+                    {@html renderSpanWithMarks(child, block.markDefs)}
+                  {/each}
+                </h4>
               {:else if block.style === 'blockquote'}
                 <blockquote>
                   {#each block.children ?? [] as child}
-                    <p>{child.text}</p>
+                    {@html renderSpanWithMarks(child, block.markDefs)}
                   {/each}
                 </blockquote>
               {:else}
                 <p>
                   {#each block.children ?? [] as child}
-                    <span>{child.text}</span>
+                    {@html renderSpanWithMarks(child, block.markDefs)}
                   {/each}
                 </p>
               {/if}

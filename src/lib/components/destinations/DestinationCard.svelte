@@ -37,7 +37,7 @@
     <CardTitle class="text-xl">
       {#if destination.slug}
         <a
-          href={`/destinations/${destination.slug}`}
+          href="/destinations/{destination.slug.replace(/^\/+/, '')}"
           class="text-slate-900 underline-offset-4 transition hover:text-[#0f1f16] hover:underline"
         >
           {destination.name}

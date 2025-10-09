@@ -9,6 +9,7 @@
     import { Clock, Mail, MapPin, Phone } from '@lucide/svelte';
     import { CONTACT_SERVICE_OPTIONS, type ContactServiceOption } from '$lib/config/contact';
     import { enhance } from '$app/forms';
+    import { toast } from 'svelte-sonner';
 
     let { data, form: actionData }: PageProps = $props();
 
@@ -32,18 +33,35 @@
     const handleEnhance: import('@sveltejs/kit').SubmitFunction = () => {
         return async ({ result, update }) => {
             if (result.type === 'success') {
-                // Clear the form on success
-                form = {
-                    name: '',
-                    email: '',
-                    phone: '',
-                    weddingDate: '',
-                    destination: '',
-                    guestCount: '',
-                    services: [],
-                    message: '',
-                    subscribe: false
-                };
+                // @ts-ignore - Check if we have errors in the result data
+                if (result.data?.success) {
+                    toast.success('Takk for forespørselen!', {
+                        description: 'Vi kontakter dere snart.'
+                    });
+                    // Clear the form on success
+                    form = {
+                        name: '',
+                        email: '',
+                        phone: '',
+                        weddingDate: '',
+                        destination: '',
+                        guestCount: '',
+                        services: [],
+                        message: '',
+                        subscribe: false
+                    };
+                // @ts-ignore - Check if we have errors
+                } else if (result.data?.errors?._form) {
+                    // @ts-ignore
+                    toast.error('Noe gikk galt', {
+                        // @ts-ignore
+                        description: result.data.errors._form
+                    });
+                }
+            } else if (result.type === 'failure') {
+                toast.error('Noe gikk galt', {
+                    description: 'Vennligst sjekk skjemaet og prøv igjen.'
+                });
             }
             
             // Call default update behavior
@@ -209,22 +227,13 @@
                             />
                             <span>Motta nyheter og inspirasjon på e-post</span>
                         </label>
-
-                        {#if (errors as ErrorRecord)._form}
-                            <div class="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                                {(errors as ErrorRecord)._form}
-                            </div>
-                        {/if}
-
-                        {#if success}
-                            <div class="rounded-md bg-primary/10 px-4 py-3 text-sm text-primary">
-                                Takk for forespørselen! Vi kontakter dere snart.
-                            </div>
-                        {/if}
                     </CardContent>
 
                     <CardFooter class="flex justify-end">
-                        <Button type="submit" class="bg-primary px-10 py-6 text-lg font-semibold active:scale-95 active:brightness-90 transition-transform">
+                        <Button 
+                            type="submit" 
+                            class="bg-primary px-10 py-6 text-lg font-semibold transition-all duration-200 hover:scale-105 hover:shadow-lg hover:brightness-110 active:scale-95 active:brightness-90"
+                        >
                             Send forespørsel
                         </Button>
                     </CardFooter>

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { ChevronDown, SlidersHorizontal } from 'lucide-svelte';
   import DestinationCard from '$lib/components/destinations/DestinationCard.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
@@ -30,8 +29,6 @@
   let maxBudget = $state(priceMax);
   let requireAccommodation = $state(false);
   let requirePlannerSupport = $state(false);
-
-  let showFilters = $state(false);
 
   const toggleVenueType = (venue: string) => {
     selectedVenueTypes = selectedVenueTypes.includes(venue)
@@ -99,7 +96,7 @@
     const budget = parseNumber(maxBudget);
     if (budget == null) return true;
     const totalCost = destination.averageCosts?.total;
-    if (totalCost == null) return false;
+    if (totalCost == null) return true;
     return totalCost <= budget;
   };
 
@@ -171,43 +168,14 @@
           drømmedag.
         </p>
       </div>
-      <div class="flex flex-wrap items-center gap-4 text-white/80">
-        <p class="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm">
-          <SlidersHorizontal class="h-4 w-4" aria-hidden="true" />
-          <span aria-live="polite">{matchCountLabel}</span>
-        </p>
-        {#if isFilterActive()}
-          <Button variant="secondary" class="rounded-full bg-white/20 px-5 py-2 text-sm text-white" onclick={resetFilters}>
-            Tilbakestill filtre
-          </Button>
-        {/if}
-      </div>
     </div>
   </section>
 
   <main class="mx-auto w-full max-w-6xl px-6 py-16">
-    <div class="mb-8 flex items-center justify-between gap-4 lg:hidden">
-      <div class="flex items-center gap-2 text-sm font-medium text-slate-600">
-        <SlidersHorizontal class="h-4 w-4" aria-hidden="true" />
-        <span>Filtre</span>
-      </div>
-      <Button
-        variant="outline"
-        class="flex items-center gap-2 rounded-full border-slate-300 px-4 py-2 text-sm"
-        onclick={() => (showFilters = !showFilters)}
-        aria-expanded={showFilters}
-        aria-controls="filters-panel"
-      >
-        {showFilters ? 'Skjul' : 'Vis'} filtre
-        <ChevronDown class={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} aria-hidden="true" />
-      </Button>
-    </div>
-
     <div class="grid gap-10 lg:grid-cols-[320px_1fr]">
       <aside
         id="filters-panel"
-        class="space-y-6 rounded-3xl border border-slate-200 bg-slate-50/60 p-6 shadow-sm transition-all duration-200 lg:block"
-        class:hidden={!showFilters}
+        class="space-y-6 rounded-3xl border border-slate-200 bg-slate-50/60 p-6 shadow-sm transition-all duration-200"
       >
         <header class="flex items-center justify-between">
           <div class="space-y-1">
