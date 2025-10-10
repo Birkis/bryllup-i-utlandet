@@ -340,7 +340,7 @@
         </header>
 
         {#if filteredDestinations.length}
-          <div class="grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
+          <div class="grid gap-8 sm:grid-cols-2">
             {#each filteredDestinations as destination (destination.id)}
               <DestinationCard destination={destination} />
             {/each}

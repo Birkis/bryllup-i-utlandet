@@ -26,14 +26,14 @@
     <img
       src={destination.imageUrl}
       alt={destination.imageAlt ?? destination.name}
-      class="h-60 w-full -translate-y-6 object-cover object-top"
+      class="h-48 w-full -translate-y-6 object-cover object-top"
     />
   {:else}
     <div class="flex h-60 w-full items-center justify-center bg-slate-100 text-slate-500">
       <span>Mangler bilde</span>
     </div>
   {/if}
-  <CardHeader class="gap-2 border-b border-slate-100 pb-5">
+  <CardHeader class="gap-2 border-b border-slate-100 pb-4">
     <CardTitle class="text-xl">
       {#if destination.slug}
         <a
@@ -50,13 +50,13 @@
       <CardDescription class="text-slate-600">{destination.shortDescription}</CardDescription>
     {/if}
   </CardHeader>
-  <CardContent class="space-y-4 pt-6">
+  <CardContent class="space-y-3 pt-4">
     <div class="space-y-2">
       <h3 class="font-semibold text-slate-900">Høydepunkter:</h3>
       {#if destination.highlights?.length}
         <div class="flex flex-wrap gap-2">
           {#each destination.highlights as highlight}
-            <span class="rounded-full bg-slate-100 px-4 py-1 text-sm font-medium text-slate-700">
+            <span class="rounded-full bg-slate-100 px-3 py-0.5 text-xs font-medium text-slate-700">
               {highlight.title}
             </span>
           {/each}
@@ -66,13 +66,13 @@
       {/if}
     </div>
   </CardContent>
-  <CardFooter class="border-t border-slate-100 pt-6">
+  <CardFooter class="border-t border-slate-100 pt-4">
     <Button
       variant="outline"
       class="w-full rounded-full border-slate-300 px-6 py-5 text-base font-semibold text-slate-900"
       asChild
     >
-      <a href="/kontakt">Få tilbud for {destination.name}</a>
+      <a href="/kontakt">Få tilbud</a>
     </Button>
   </CardFooter>
 </Card>
