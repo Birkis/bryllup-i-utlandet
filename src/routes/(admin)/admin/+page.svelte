@@ -16,7 +16,8 @@
 		ChevronLeft,
 		ChevronRight,
 		ArrowUpDown,
-		ChevronDown
+		ChevronDown,
+		LogOut
 	} from '@lucide/svelte';
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
@@ -178,13 +179,21 @@
 </svelte:head>
 
 <section class="container mx-auto py-8 px-6">
-	<header class="mb-8">
-		<h1 class="text-3xl font-semibold tracking-tight text-foreground">Kontaktforesp?rsler</h1>
-		<p class="mt-2 text-muted-foreground">
-			Viser {contactRequests.length} av {pagination.totalItems} foresp?rsel{pagination.totalItems !== 1
-				? 'er'
-				: ''}
-		</p>
+	<header class="mb-8 flex items-start justify-between">
+		<div>
+			<h1 class="text-3xl font-semibold tracking-tight text-foreground">Kontaktforesp?rsler</h1>
+			<p class="mt-2 text-muted-foreground">
+				Viser {contactRequests.length} av {pagination.totalItems} foresp?rsel{pagination.totalItems !== 1
+					? 'er'
+					: ''}
+			</p>
+		</div>
+		<form method="post" action="/logout">
+			<Button type="submit" variant="outline" size="sm">
+				<LogOut class="mr-2 size-4" />
+				Logg ut
+			</Button>
+		</form>
 	</header>
 
 	<!-- Filters and Search -->

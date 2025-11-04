@@ -40,6 +40,7 @@
 	},
 	"dependencies": {
 		"@sanity/client": "^7.11.2",
+		"@supabase/ssr": "^0.7.0",
 		"@supabase/supabase-js": "^2.74.0",
 		"date-fns": "^4.1.0",
 		"lucide-svelte": "^0.545.0"
