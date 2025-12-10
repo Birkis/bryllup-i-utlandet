@@ -294,6 +294,49 @@
         </Card>
       {/if}
 
+      {#if destination.country && destination.cities?.length}
+        <Card class="border-slate-200">
+          <CardHeader>
+            <CardTitle>{destination.country.name}</CardTitle>
+            <CardDescription>Utforsk byer i {destination.country.name}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="grid gap-4 sm:grid-cols-2">
+              {#each destination.cities as city}
+                <a
+                  href="/cities/{city.slug}"
+                  class="group overflow-hidden rounded-lg border border-slate-200 bg-white transition hover:shadow-md"
+                >
+                  {#if city.imageUrl}
+                    <div class="aspect-[4/3] overflow-hidden">
+                      <img
+                        src={city.imageUrl}
+                        alt={city.imageAlt ?? city.name}
+                        class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                  {:else}
+                    <div class="aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-200"></div>
+                  {/if}
+                  <div class="p-3">
+                    <h3 class="text-sm font-semibold text-slate-900 group-hover:text-[#0f1f16]">
+                      {city.name}
+                    </h3>
+                    {#if city.shortDescription}
+                      <p class="mt-1 line-clamp-2 text-xs text-slate-600">
+                        {city.shortDescription}
+                      </p>
+                    {/if}
+                  </div>
+                </a>
+              {/each}
+            </div>
+          </CardContent>
+        </Card>
+      {/if}
+
       {#if hasCapacity || hasAverageCosts}
         <Card class="border-slate-200">
           <CardHeader>

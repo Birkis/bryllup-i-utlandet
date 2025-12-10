@@ -109,6 +109,7 @@ export type DestinationDetail = DestinationBase & {
   metaDescription?: string;
   isActive?: boolean;
   lastUpdated?: string;
+  cities?: City[];
 };
 
 // Country and City types (new schema)
