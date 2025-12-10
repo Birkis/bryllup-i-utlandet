@@ -76,6 +76,14 @@ export const destinationBySlugQuery = `
       "id": _id,
       name,
       "slug": slug.current
+    },
+    "cities": *[_type == "city" && country._ref == ^.country._ref] | order(name asc) {
+      "id": _id,
+      name,
+      "slug": slug.current,
+      "imageUrl": heroImage.asset->url,
+      "imageAlt": heroImage.alt,
+      shortDescription
     }
   }
 `;
