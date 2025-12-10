@@ -12,6 +12,8 @@ export type ContactRequest = {
   weddingDate?: string;
   destination?: string;
   guestCount?: number;
+  budgetMin?: number;
+  budgetMax?: number;
   services: ContactServiceOption[];
   message?: string;
   subscribe: boolean;
@@ -37,6 +39,8 @@ export type ContactRequestInput = {
   weddingDate?: string;
   destination?: string;
   guestCount?: number;
+  budgetMin?: number;
+  budgetMax?: number;
   services?: ContactServiceOption[];
   message?: string;
   subscribe?: boolean;

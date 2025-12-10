@@ -16,9 +16,21 @@
     imageAlt?: string | null;
     shortDescription?: string | null;
     highlights?: { title: string }[];
+    country?: {
+      id: string;
+      name: string;
+      slug: string;
+    } | null;
   };
 
-  export let destination: Destination;
+  let { destination }: { destination: Destination } = $props();
+
+  // Build contact URL with country pre-populated
+  const contactUrl = $derived(
+    destination.country?.name
+      ? `/kontakt?country=${encodeURIComponent(destination.country.name)}`
+      : '/kontakt'
+  );
 </script>
 
 <Card class="overflow-hidden rounded-2xl border-slate-200">
@@ -55,7 +67,7 @@
       <h3 class="font-semibold text-slate-900">Høydepunkter:</h3>
       {#if destination.highlights?.length}
         <div class="flex flex-wrap gap-2">
-          {#each destination.highlights as highlight}
+          {#each destination.highlights as highlight (highlight.title)}
             <span class="rounded-full bg-slate-100 px-3 py-0.5 text-xs font-medium text-slate-700">
               {highlight.title}
             </span>
@@ -72,8 +84,7 @@
       class="w-full rounded-full border-slate-300 px-6 py-5 text-base font-semibold text-slate-900"
       asChild
     >
-      <a href="/kontakt">Få tilbud</a>
+      <a href={contactUrl}>Få tilbud</a>
     </Button>
   </CardFooter>
 </Card>
-

@@ -91,6 +91,11 @@
     destination.averageCosts?.total != null;
 
   const lastUpdatedFormatted = formatDate(destination.lastUpdated);
+  
+  // Build contact URL with country pre-populated
+  const contactUrl = destination.country?.name
+    ? `/kontakt?country=${encodeURIComponent(destination.country.name)}`
+    : '/kontakt';
 </script>
 
 <svelte:head>
@@ -169,7 +174,7 @@
           class="rounded-full border border-white/30 bg-white px-6 py-4 text-sm font-semibold text-[#0f1f16] shadow-none transition hover:bg-white/90"
           asChild
         >
-          <a href="/kontakt">Kontakt oss om {destination.name}</a>
+          <a href={contactUrl}>Kontakt oss om {destination.name}</a>
         </Button>
         {#if lastUpdatedFormatted}
           <span class="text-xs uppercase tracking-wide text-white/60">
@@ -399,7 +404,7 @@
             class="w-full rounded-full border border-white/30 bg-white px-6 py-4 text-sm font-semibold text-[#0f1f16] shadow-none transition hover:bg-white/90"
             asChild
           >
-            <a href="/kontakt">Kontakt oss</a>
+            <a href={contactUrl}>Kontakt oss</a>
           </Button>
         </CardContent>
       </Card>

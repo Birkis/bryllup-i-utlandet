@@ -72,6 +72,13 @@ export type PortableTextImageBlock = {
 
 export type PortableTextContent = Array<PortableTextBlock | PortableTextImageBlock>;
 
+// Embedded country reference (from query expansion)
+export type DestinationCountryRef = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
 export type DestinationBase = {
   id: string;
   name: string;
@@ -85,6 +92,7 @@ export type DestinationBase = {
   averageCosts?: DestinationAverageCosts;
   contactInfo?: DestinationContactInfo;
   isFeatured?: boolean;
+  country?: DestinationCountryRef | null;
 };
 
 export type DestinationListItem = DestinationBase & {
@@ -101,5 +109,33 @@ export type DestinationDetail = DestinationBase & {
   metaDescription?: string;
   isActive?: boolean;
   lastUpdated?: string;
+};
+
+// Country and City types (new schema)
+export type Country = {
+  id: string;
+  name: string;
+  slug: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  description?: string;
+  isFeatured?: boolean;
+};
+
+export type City = {
+  id: string;
+  name: string;
+  slug: string;
+  region?: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  shortDescription?: string;
+  coordinates?: {
+    latitude?: number;
+    longitude?: number;
+  };
+  isFeatured?: boolean;
+  countryId: string;
+  country?: Country;
 };
 

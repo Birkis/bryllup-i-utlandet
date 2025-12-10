@@ -5,8 +5,17 @@
     import CardFooter from '$lib/components/ui/card/card-footer.svelte';
     import Input from '$lib/components/ui/input/input.svelte';
     import Button from '$lib/components/ui/button/button.svelte';
-    import { MonthPicker } from '$lib/components/ui/month-picker';
+    import { DatePicker } from '$lib/components/ui/date-picker';
+    import { Slider } from '$lib/components/ui/slider';
     import { Clock, Mail, MapPin, Phone } from '@lucide/svelte';
+
+    // Format budget as NOK currency
+    function formatBudget(value: number): string {
+        return new Intl.NumberFormat('nb-NO', {
+            style: 'decimal',
+            maximumFractionDigits: 0
+        }).format(value) + ' NOK';
+    }
     import { CONTACT_SERVICE_OPTIONS, type ContactServiceOption } from '$lib/config/contact';
     import { enhance } from '$app/forms';
     import { toast } from 'svelte-sonner';
@@ -14,17 +23,40 @@
     let { data, form: actionData }: PageProps = $props();
 
     const serviceOptions = [...(data.serviceOptions ?? CONTACT_SERVICE_OPTIONS)] as ContactServiceOption[];
+    const countries = data.countries ?? [];
+    const cities = data.cities ?? [];
 
     let form = $state({
         name: (actionData && 'values' in actionData ? actionData.values?.name : '') ?? '',
         email: (actionData && 'values' in actionData ? actionData.values?.email : '') ?? '',
         phone: (actionData && 'values' in actionData ? actionData.values?.phone : '') ?? '',
         weddingDate: (actionData && 'values' in actionData ? actionData.values?.weddingDate : '') ?? '',
-        destination: (actionData && 'values' in actionData ? actionData.values?.destination : '') ?? '',
+        country: data.prefilledCountry ?? '',
+        city: data.prefilledCity ?? '',
         guestCount: (actionData && 'values' in actionData ? actionData.values?.guestCount : '') ?? '',
+        budget: [
+            actionData && 'values' in actionData ? (actionData.values?.budgetMin ?? 200000) : 200000,
+            actionData && 'values' in actionData ? (actionData.values?.budgetMax ?? 500000) : 500000
+        ] as number[],
         services: (actionData && 'values' in actionData ? actionData.values?.services : []) ?? ([] as string[]),
         message: (actionData && 'values' in actionData ? actionData.values?.message : '') ?? '',
         subscribe: (actionData && 'values' in actionData ? actionData.values?.subscribe : false) ?? false
+    });
+
+    // Filter cities based on selected country
+    const filteredCities = $derived(() => {
+        if (!form.country) return [];
+        const selectedCountry = countries.find(c => c.name === form.country);
+        if (!selectedCountry) return [];
+        return cities.filter(city => city.countryId === selectedCountry.id);
+    });
+
+    // Reset city when country changes
+    $effect(() => {
+        const available = filteredCities();
+        if (form.city && !available.find(c => c.name === form.city)) {
+            form.city = '';
+        }
     });
 
     const errors = $derived((actionData && 'errors' in actionData ? actionData.errors : {}) ?? {});
@@ -44,8 +76,10 @@
                         email: '',
                         phone: '',
                         weddingDate: '',
-                        destination: '',
+                        country: '',
+                        city: '',
                         guestCount: '',
+                        budget: [200000, 500000],
                         services: [],
                         message: '',
                         subscribe: false
@@ -137,26 +171,48 @@
 
                         <div class="flex flex-col gap-2">
                             <label class="text-sm font-medium text-muted-foreground" for="weddingDate"
-                                >Ønsket bryllupsmåned</label
+                                >Ønsket år og måned - Dato er fleksibelt</label
                             >
-                            <MonthPicker
+                            <DatePicker
                                 bind:value={form.weddingDate}
-                                placeholder="Velg måned og år"
+                                placeholder="Velg dato"
                             />
                             <input type="hidden" name="weddingDate" value={form.weddingDate} />
                         </div>
 
                         <div class="flex flex-col gap-2">
-                            <label class="text-sm font-medium text-muted-foreground" for="destination"
-                                >Ønsket sted/destinasjon</label
+                            <label class="text-sm font-medium text-muted-foreground" for="country"
+                                >Ønsket land</label
                             >
-                            <Input
-                                id="destination"
-                                name="destination"
-                                bind:value={form.destination}
-                                placeholder="f.eks. Oslo, Hellas, Kroatia"
-                                type="text"
-                            />
+                            <select
+                                id="country"
+                                name="country"
+                                bind:value={form.country}
+                                class="ring-offset-background dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] border-input bg-background text-foreground placeholder:text-muted-foreground shadow-xs h-10 w-full rounded-md border px-3 py-2 text-base outline-none transition-[color,box-shadow] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                            >
+                                <option value="">Velg land</option>
+                                {#each countries as country}
+                                    <option value={country.name}>{country.name}</option>
+                                {/each}
+                            </select>
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium text-muted-foreground" for="city"
+                                >Ønsket by (valgfritt)</label
+                            >
+                            <select
+                                id="city"
+                                name="city"
+                                bind:value={form.city}
+                                disabled={!form.country || filteredCities().length === 0}
+                                class="ring-offset-background dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] border-input bg-background text-foreground placeholder:text-muted-foreground shadow-xs h-10 w-full rounded-md border px-3 py-2 text-base outline-none transition-[color,box-shadow] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                            >
+                                <option value="">{form.country ? 'Velg by' : 'Velg land først'}</option>
+                                {#each filteredCities() as city}
+                                    <option value={city.name}>{city.name}{city.region ? ` (${city.region})` : ''}</option>
+                                {/each}
+                            </select>
                         </div>
 
                         <div class="flex flex-col gap-2">
@@ -174,6 +230,28 @@
                             {#if (errors as ErrorRecord).guestCount}
                                 <span class="text-sm text-destructive">{(errors as ErrorRecord).guestCount}</span>
                             {/if}
+                        </div>
+
+                        <div class="flex flex-col gap-2 md:col-span-2">
+                            <label class="text-sm font-medium text-muted-foreground" for="budget"
+                                >Budsjett</label
+                            >
+                            <div class="flex flex-col gap-3">
+                                <Slider
+                                    bind:value={form.budget}
+                                    min={50000}
+                                    max={950000}
+                                    step={50000}
+                                    class="w-full"
+                                />
+                                <div class="flex justify-between text-xs text-muted-foreground">
+                                    <span>50 000 NOK</span>
+                                    <span class="font-medium text-foreground">{formatBudget(form.budget[0])} – {formatBudget(form.budget[1])}</span>
+                                    <span>950 000 NOK</span>
+                                </div>
+                            </div>
+                            <input type="hidden" name="budgetMin" value={form.budget[0]} />
+                            <input type="hidden" name="budgetMax" value={form.budget[1]} />
                         </div>
                     </CardContent>
 

@@ -21,6 +21,11 @@ export const destinationsQuery = `
       "url": asset->url,
       alt,
       caption
+    },
+    "country": country->{
+      "id": _id,
+      name,
+      "slug": slug.current
     }
   }
 `;
@@ -66,7 +71,12 @@ export const destinationBySlugQuery = `
     metaDescription,
     isFeatured,
     isActive,
-    lastUpdated
+    lastUpdated,
+    "country": country->{
+      "id": _id,
+      name,
+      "slug": slug.current
+    }
   }
 `;
 
@@ -110,6 +120,61 @@ export const blogPostBySlugQuery = `
           caption
         }
       )
+    }
+  }
+`;
+
+// Country and City queries
+export const countriesQuery = `
+  *[_type == "country"] | order(name asc) {
+    "id": _id,
+    name,
+    "slug": slug.current,
+    "imageUrl": heroImage.asset->url,
+    "imageAlt": heroImage.alt,
+    description,
+    isFeatured
+  }
+`;
+
+export const citiesQuery = `
+  *[_type == "city"] | order(name asc) {
+    "id": _id,
+    name,
+    "slug": slug.current,
+    region,
+    "imageUrl": heroImage.asset->url,
+    "imageAlt": heroImage.alt,
+    shortDescription,
+    coordinates,
+    isFeatured,
+    "countryId": country._ref,
+    "country": country->{
+      "id": _id,
+      name,
+      "slug": slug.current
+    }
+  }
+`;
+
+export const cityBySlugQuery = `
+  *[_type == "city" && slug.current == $slug][0] {
+    "id": _id,
+    name,
+    "slug": slug.current,
+    region,
+    "imageUrl": heroImage.asset->url,
+    "imageAlt": heroImage.alt,
+    shortDescription,
+    coordinates,
+    isFeatured,
+    "countryId": country._ref,
+    "country": country->{
+      "id": _id,
+      name,
+      "slug": slug.current,
+      "imageUrl": heroImage.asset->url,
+      description
     }
   }
 `;
