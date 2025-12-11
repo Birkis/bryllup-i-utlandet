@@ -90,7 +90,7 @@
         </div>
     </section>
 
-    <main class="mx-auto grid w-full max-w-6xl gap-10 px-6 py-16 lg:grid-cols-[2fr,1fr]">
+    <main class="mx-auto grid w-full max-w-6xl gap-10 px-6 py-16 md:grid-cols-[2fr,1fr]">
         <section class="space-y-12">
             <article class="prose prose-slate max-w-none">
                 <h2>Om {city.name}</h2>
